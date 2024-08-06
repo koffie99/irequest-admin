@@ -4,6 +4,8 @@ const Requests = () => {
   const [requests, setRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 10;
 
   useEffect(() => {
     const requestOptions = {
@@ -27,7 +29,33 @@ const Requests = () => {
       request.student_id.toLowerCase().includes(lowercasedQuery)
     );
     setFilteredRequests(filteredData);
+    setCurrentPage(1); // Reset to first page when search query changes
   }, [searchQuery, requests]);
+
+  const handleDelete = (id) => {
+    const requestOptions = {
+      method: 'DELETE',
+      redirect: 'follow',
+    };
+
+    fetch(`https://irequest.rumlyn.com/api/v1/processed-requests/${id}`, requestOptions)
+      .then((response) => {
+        if (response.ok) {
+          const updatedRequests = requests.filter((request) => request._id !== id);
+          setRequests(updatedRequests);
+          setFilteredRequests(updatedRequests);
+        } else {
+          console.error('Failed to delete the request.');
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  // Pagination logic
+  const indexOfLastRecord = currentPage * recordsPerPage;
+  const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+  const currentRecords = filteredRequests.slice(indexOfFirstRecord, indexOfLastRecord);
+  const totalPages = Math.ceil(filteredRequests.length / recordsPerPage);
 
   return (
     <div className='min-h-screen'>
@@ -48,20 +76,46 @@ const Requests = () => {
               <th className='py-2'>Status</th>
               <th className='py-2'>Date Created</th>
               <th className='py-2'>Date Updated</th>
+              <th className='py-2'>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredRequests.map((request) => (
+            {currentRecords.map((request) => (
               <tr key={request._id}>
                 <td className='border px-4 py-2'>{request.requestCode}</td>
                 <td className='border px-4 py-2'>{request.student_id}</td>
                 <td className='border px-4 py-2'>{request.status ? 'Completed' : 'Pending'}</td>
                 <td className='border px-4 py-2'>{new Date(request.dateCreated).toLocaleString()}</td>
                 <td className='border px-4 py-2'>{new Date(request.dateUpdated).toLocaleString()}</td>
+                <td className='border px-4 py-2'>
+                  <button
+                    onClick={() => handleDelete(request._id)}
+                    className='bg-red-500 text-white px-3 py-1 rounded'
+                  >
+                    Delete
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+      <div className='mt-4'>
+        <button
+          onClick={() => setCurrentPage(currentPage - 1)}
+          disabled={currentPage === 1}
+          className='mr-2 p-2 bg-gray-200 rounded'
+        >
+          Previous
+        </button>
+        <button
+          onClick={() => setCurrentPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className='p-2 bg-gray-200 rounded'
+        >
+          Next
+        </button>
+        <span className='ml-4'>Page {currentPage} of {totalPages}</span>
       </div>
     </div>
   );
