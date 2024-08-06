@@ -1,98 +1,167 @@
-import React, { useState, useEffect } from 'react';
-import { useSpring, animated } from '@react-spring/web';
+import React, { useState, useEffect } from "react"
+import { useSpring, animated } from "@react-spring/web"
+import toast, { Toaster } from "react-hot-toast"
 
 const RequestTypes = () => {
-  const [requestTypes, setRequestTypes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isSliderVisible, setIsSliderVisible] = useState(false);
-  const [newRequestType, setNewRequestType] = useState({ name: '', price: '' });
-  const [formError, setFormError] = useState('');
+  const [requestTypes, setRequestTypes] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [isSliderVisible, setIsSliderVisible] = useState(false)
+  const [newRequestType, setNewRequestType] = useState({ name: "", price: "" })
+
+  const getRequestTypes = async () => {
+    try {
+      const requestOptions = {
+        method: "GET",
+        redirect: "follow",
+      }
+
+      fetch(
+        "https://irequest.rumlyn.com/api/v1/requestTypes/all",
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((result) => {
+          setRequestTypes(result.request_types)
+          setLoading(false)
+        })
+        .catch((error) => {
+          console.error(error)
+          setError("Failed to load data")
+          setLoading(false)
+        })
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   useEffect(() => {
-    const requestOptions = {
-      method: "GET",
-      redirect: "follow"
-    };
-
-    fetch("https://irequest.rumlyn.com/api/v1/requestTypes/all", requestOptions)
-      .then(response => response.json())
-      .then(result => {
-        setRequestTypes(result.request_types);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error(error);
-        setError('Failed to load data');
-        setLoading(false);
-      });
-  }, []);
+    getRequestTypes()
+  }, [])
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this request type?')) {
+    if (window.confirm("Are you sure you want to delete this request type?")) {
       const requestOptions = {
         method: "DELETE",
-        redirect: "follow"
-      };
+        redirect: "follow",
+      }
 
-      fetch(`https://irequest.rumlyn.com/api/v1/requestTypes/delete/${id}`, requestOptions)
-        .then(response => response.text())
-        .then(result => {
-          console.log(result);
-          // Remove the deleted request type from the state
-          setRequestTypes(requestTypes.filter(requestType => requestType._id !== id));
+      fetch(
+        `https://irequest.rumlyn.com/api/v1/requestTypes/delete/${id}`,
+        requestOptions
+      )
+        .then((response) => response.text())
+        .then((result) => {
+            toast.success("Request Type Deleted Successfully")
+          console.log(result)
+          setRequestTypes(
+            requestTypes.filter((requestType) => requestType._id !== id)
+          )
         })
-        .catch(error => console.error(error));
+        .catch((error) => console.error(error))
     }
-  };
+  }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewRequestType({ ...newRequestType, [name]: value });
-  };
+  //   const handleAddRequestType = () => {
+  //     const myHeaders = new Headers()
+  //     myHeaders.append("Content-Type", "application/json")
+
+  //     const raw = JSON.stringify({
+  //       name: newRequestType.name,
+  //       price: newRequestType.price,
+  //     })
+
+  //     const requestOptions = {
+  //       method: "POST",
+  //       headers: myHeaders,
+  //       body: raw,
+  //       redirect: "follow",
+  //     }
+
+  //     fetch(
+  //       "https://irequest.rumlyn.com/api/v1/requestTypes/create",
+  //       requestOptions
+  //     )
+  //       .then((response) => response.json())
+  //       .then((result) => {
+  //         if (result.msg === "Request type added successfully") {
+  //           console.log(result)
+  //           toast.success("Request Type added successfully!")
+  //           setNewRequestType({ name: "", price: "" })
+  //           setIsSliderVisible(false)
+  //           // Refresh the request types
+  //           return fetch(
+  //             "https://irequest.rumlyn.com/api/v1/requestTypes/all",
+  //             requestOptions
+  //           )
+  //             .then((response) => response.json())
+  //             .then((result) => {
+  //               setRequestTypes(result.request_types)
+  //             })
+  //         }else{
+  //             toast.error('Unable to add request type')
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         console.error(error)
+  //         toast.error("Failed to add Request Type")
+  //       })
+  //   }
 
   const handleAddRequestType = () => {
-    if (newRequestType.name && newRequestType.price) {
-      const myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
+    const myHeaders = new Headers()
+    myHeaders.append("Content-Type", "application/json")
 
-      const raw = JSON.stringify(newRequestType);
+    const raw = JSON.stringify({
+      name: newRequestType.name,
+      price: newRequestType.price,
+    })
 
-      const requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-        redirect: "follow"
-      };
-
-      fetch("https://irequest.rumlyn.com/api/v1/requestTypes/create", requestOptions)
-        .then(response => response.text())
-        .then(result => {
-          console.log(result);
-          setRequestTypes([...requestTypes, { ...newRequestType, _id: Date.now() }]);
-          setNewRequestType({ name: '', price: '' });
-          setIsSliderVisible(false);
-        })
-        .catch(error => console.error(error));
-    } else {
-      setFormError('Please fill in all fields.');
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
     }
-  };
+
+    fetch(
+      "https://irequest.rumlyn.com/api/v1/requestTypes/create",
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.msg === "Request type added successfully") {
+          console.log(result)
+          toast.success("Request Type added successfully!")
+          setNewRequestType({ name: "", price: "" })
+          setIsSliderVisible(false)
+          // Refresh the request types
+          getRequestTypes()
+        } else {
+          toast.error("Unable to add request type: " + result.msg)
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        // toast.error("Failed to add Request Type");
+      })
+  }
 
   const slideIn = useSpring({
-    transform: isSliderVisible ? 'translateX(0)' : 'translateX(100%)',
-  });
+    transform: isSliderVisible ? "translateX(0)" : "translateX(100%)",
+  })
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return <p>Loading...</p>
+  if (error) return <p>{error}</p>
 
   return (
     <div className="min-h-screen w-full p-4">
+      <Toaster />
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-bold">Request Types</h2>
         <button
           onClick={() => setIsSliderVisible(true)}
-          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors"
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
         >
           Add Request Type
         </button>
@@ -108,11 +177,16 @@ const RequestTypes = () => {
             </tr>
           </thead>
           <tbody>
-            {requestTypes.map(requestType => (
-              <tr key={requestType._id} className="border-b border-gray-200 hover:bg-gray-50">
+            {requestTypes.map((requestType) => (
+              <tr
+                key={requestType._id}
+                className="border-b border-gray-200 hover:bg-gray-50"
+              >
                 <td className="py-3 px-6">{requestType.name}</td>
-                <td className="py-3 px-6">${requestType.price}</td>
-                <td className="py-3 px-6">{new Date(requestType.dateCreated).toLocaleDateString()}</td>
+                <td className="py-3 px-6">₵{requestType.price}</td>
+                <td className="py-3 px-6">
+                  {new Date(requestType.dateCreated).toLocaleDateString()}
+                </td>
                 <td className="py-3 px-6 text-center">
                   <button
                     onClick={() => handleDelete(requestType._id)}
@@ -127,21 +201,21 @@ const RequestTypes = () => {
         </table>
       </div>
 
-      {/* Slider for adding a new request type */}
+      {/* Slider for adding request type */}
       <animated.div
         style={{
           ...slideIn,
-          position: 'fixed',
+          position: "fixed",
           top: 0,
           right: 0,
-          width: '300px',
-          height: '100%',
-          backgroundColor: 'white',
-          boxShadow: '-2px 0 10px rgba(0, 0, 0, 0.1)',
-          padding: '20px',
+          width: "300px",
+          height: "100%",
+          backgroundColor: "white",
+          boxShadow: "-2px 0 10px rgba(0, 0, 0, 0.1)",
+          padding: "20px",
           zIndex: 1000,
-          borderLeft: '1px solid #e2e8f0',
-          overflowY: 'auto',
+          borderLeft: "1px solid #e2e8f0",
+          overflowY: "auto",
         }}
       >
         <button
@@ -150,35 +224,51 @@ const RequestTypes = () => {
         >
           Close
         </button>
-        <h2 className="text-xl font-bold mb-4">Add New Request Type</h2>
-        {formError && <p className="text-red-500 mb-4">{formError}</p>}
-        <div className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            value={newRequestType.name}
-            onChange={handleInputChange}
-            placeholder="Name"
-            className="p-3 w-full border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
-          />
-          <input
-            type="number"
-            name="price"
-            value={newRequestType.price}
-            onChange={handleInputChange}
-            placeholder="Price"
-            className="p-3 w-full border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:border-blue-500"
-          />
+        <h2 className="text-xl font-bold mb-4">Add Request Type</h2>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleAddRequestType()
+          }}
+        >
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Name
+            </label>
+            <input
+              type="text"
+              value={newRequestType.name}
+              onChange={(e) =>
+                setNewRequestType({ ...newRequestType, name: e.target.value })
+              }
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Price
+            </label>
+            <input
+              type="number"
+              value={newRequestType.price}
+              onChange={(e) =>
+                setNewRequestType({ ...newRequestType, price: e.target.value })
+              }
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              required
+            />
+          </div>
           <button
-            onClick={handleAddRequestType}
+            type="submit"
             className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
           >
-            Add
+            Add Request Type
           </button>
-        </div>
+        </form>
       </animated.div>
     </div>
-  );
-};
+  )
+}
 
-export default RequestTypes;
+export default RequestTypes
