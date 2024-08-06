@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { FaTrash } from 'react-icons/fa';
+import {Toaster, toast} from 'react-hot-toast';
 
 const Statuses = () => {
   const [data, setData] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [newStatus, setNewStatus] = useState("");
-  const [statusToDelete, setStatusToDelete] = useState(null);
 
   useEffect(() => {
     // Fetch data from the API on component mount
@@ -23,6 +23,7 @@ const Statuses = () => {
         }
       } catch (error) {
         console.error("Error fetching statuses:", error);
+        toast.error("Error fetching statuses");
       }
     };
 
@@ -43,8 +44,10 @@ const Statuses = () => {
 
         // Update the table after deletion
         setData(data.filter(item => item.id !== id));
+        toast.success("Status deleted successfully");
       } catch (error) {
         console.error("Error deleting status:", error);
+        toast.error("Error deleting status");
       }
     }
   };
@@ -80,8 +83,10 @@ const Statuses = () => {
 
       setNewStatus("");
       setIsOpen(false);
+      toast.success("Status added successfully");
     } catch (error) {
       console.error("Error adding status:", error);
+      toast.error("Error adding status");
     }
   };
 
@@ -151,6 +156,8 @@ const Statuses = () => {
           </div>
         </div>
       )}
+
+      <Toaster />
     </div>
   );
 };
