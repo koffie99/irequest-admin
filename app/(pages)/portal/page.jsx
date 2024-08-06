@@ -1,6 +1,7 @@
 "use client"
 import Dashboard from "@/app/screens/Dashboard"
 import Requests from "@/app/screens/Requests"
+import RequestTypes from "@/app/screens/RequestTypes"
 import Image from "next/image"
 import React, { useState } from "react"
 import { IoPersonCircleSharp } from "react-icons/io5"
@@ -20,8 +21,8 @@ const Portal = () => {
         return <Dashboard />
       case "Requests":
         return <Requests />
-      case "Profile":
-        return <h1 className="text-2xl font-bold">Profile Page</h1>
+      case "request-types":
+        return <RequestTypes />
       case "Logout":
         return <h1 className="text-2xl font-bold">You have been logged out</h1>
       default:
@@ -74,7 +75,7 @@ const Portal = () => {
               className={`cursor-pointer ${
                 activePage === "Profile" ? "font-bold" : ""
               }`}
-              onClick={() => setActivePage("Profile")}
+              onClick={() => setActivePage("request-types")}
             >
               Request types
             </li>

@@ -186,7 +186,7 @@ const Requests = () => {
                 <td className="py-3 px-6">{request.status ? 'Completed' : 'Pending'}</td>
                 <td className="py-3 px-6">{new Date(request.dateCreated).toLocaleString()}</td>
                 <td className="py-3 px-6">{new Date(request.dateUpdated).toLocaleString()}</td>
-                <td className="py-3 px-6 text-center space-x-2">
+                <td className="py-3 px-6 text-center space-x-2 flex items-center">
                   <button
                     onClick={() => openSlider(request)}
                     className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition-colors"
