@@ -1,53 +1,60 @@
-"use client";
-import Dashboard from "@/app/screens/Dashboard";
-import Requests from "@/app/screens/Requests";
-import RequestTypes from "@/app/screens/RequestTypes";
-import Image from "next/image";
-import React, { useState } from "react";
-import { IoPersonCircleSharp } from "react-icons/io5";
-import { MdKeyboardArrowDown } from "react-icons/md";
-import { useRouter } from "next/navigation"; // Import useRouter for redirection
+"use client"
+import Dashboard from "@/app/screens/Dashboard"
+import Requests from "@/app/screens/Requests"
+import RequestTypes from "@/app/screens/RequestTypes"
+import Image from "next/image"
+import React, { useState } from "react"
+import { IoPersonCircleSharp } from "react-icons/io5"
+import { MdKeyboardArrowDown } from "react-icons/md"
+import { useRouter } from "next/navigation" // Import useRouter for redirection
 
 const Portal = () => {
-  let adminName;
-  const [activePage, setActivePage] = useState("Dashboard");
-  const [isMenuVisible, setIsMenuVisible] = useState(false); // State to toggle menu visibility on small screens
-  const router = useRouter(); // Initialize useRouter
+  let adminName
+  const [activePage, setActivePage] = useState("Dashboard")
+  const [isMenuVisible, setIsMenuVisible] = useState(false) // State to toggle menu visibility on small screens
+  const router = useRouter() // Initialize useRouter
 
   if (typeof sessionStorage !== "undefined") {
-    adminName = sessionStorage.getItem("adminName");
+    adminName = sessionStorage.getItem("adminName")
   }
 
   const renderContent = () => {
     switch (activePage) {
       case "Dashboard":
-        return <Dashboard />;
+        return <Dashboard />
       case "Requests":
-        return <Requests />;
+        return <Requests />
       case "request-types":
-        return <RequestTypes />;
+        return <RequestTypes />
+      case "statuses":
+        return <RequestTypes />
       case "Logout":
         return (
           <div className="flex items-center justify-center h-full">
             <h1 className="text-2xl font-bold">You have been logged out</h1>
           </div>
-        );
+        )
       default:
-        return <h1 className="text-2xl font-bold">Welcome to the Portal</h1>;
+        return <h1 className="text-2xl font-bold">Welcome to the Portal</h1>
     }
-  };
+  }
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to log out?")) {
-      router.push("/"); // Redirect to home page
+      router.push("/") // Redirect to home page
     }
-  };
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f9fafd] w-full">
       {/* Header */}
       <div className="h-16 bg-[dodgerblue] w-full flex items-center justify-between px-4 sm:px-10">
-        <Image width={100} height={100} alt="logo" src="/images/ilogowhite.png" />
+        <Image
+          width={100}
+          height={100}
+          alt="logo"
+          src="/images/ilogowhite.png"
+        />
         <div className="flex items-center gap-2 text-white">
           <p className="hidden sm:block">
             {adminName ? adminName.toUpperCase() : "Hello!"}
@@ -74,34 +81,53 @@ const Portal = () => {
         >
           <ul className="space-y-4 text-white">
             <li
-              className={`cursor-pointer ${activePage === "Dashboard" ? "font-bold" : ""}`}
+              className={`cursor-pointer ${
+                activePage === "Dashboard" ? "font-bold" : ""
+              }`}
               onClick={() => {
-                setActivePage("Dashboard");
-                setIsMenuVisible(false); // Hide menu on click
+                setActivePage("Dashboard")
+                setIsMenuVisible(false) // Hide menu on click
               }}
             >
               Dashboard
             </li>
             <li
-              className={`cursor-pointer ${activePage === "Requests" ? "font-bold" : ""}`}
+              className={`cursor-pointer ${
+                activePage === "Requests" ? "font-bold" : ""
+              }`}
               onClick={() => {
-                setActivePage("Requests");
-                setIsMenuVisible(false); // Hide menu on click
+                setActivePage("Requests")
+                setIsMenuVisible(false) // Hide menu on click
               }}
             >
               Requests
             </li>
             <li
-              className={`cursor-pointer ${activePage === "request-types" ? "font-bold" : ""}`}
+              className={`cursor-pointer ${
+                activePage === "request-types" ? "font-bold" : ""
+              }`}
               onClick={() => {
-                setActivePage("request-types");
-                setIsMenuVisible(false); // Hide menu on click
+                setActivePage("request-types")
+                setIsMenuVisible(false) // Hide menu on click
               }}
             >
               Request Types
             </li>
             <li
-              className={`cursor-pointer ${activePage === "Logout" ? "font-bold" : ""}`}
+              className={`cursor-pointer ${
+                activePage === "statuses" ? "font-bold" : ""
+              }`}
+              onClick={() => {
+                setActivePage("request-types")
+                setIsMenuVisible(false) // Hide menu on click
+              }}
+            >
+              Statuses
+            </li>
+            <li
+              className={`cursor-pointer ${
+                activePage === "Logout" ? "font-bold" : ""
+              }`}
               onClick={() => handleLogout()} // Use handleLogout function
             >
               Logout
@@ -110,12 +136,10 @@ const Portal = () => {
         </div>
 
         {/* Main content */}
-        <div className="flex-1 p-4 sm:p-10 bg-[#f9fafd]">
-          {renderContent()}
-        </div>
+        <div className="flex-1 p-4 sm:p-10 bg-[#f9fafd]">{renderContent()}</div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Portal;
+export default Portal
