@@ -52,7 +52,7 @@ const RequestTypes = () => {
       )
         .then((response) => response.text())
         .then((result) => {
-            toast.success("Request Type Deleted Successfully")
+          toast.success("Request Type Deleted Successfully")
           console.log(result)
           setRequestTypes(
             requestTypes.filter((requestType) => requestType._id !== id)
@@ -238,10 +238,11 @@ const RequestTypes = () => {
             <input
               type="text"
               value={newRequestType.name}
+              placeholder="Request type name"
               onChange={(e) =>
                 setNewRequestType({ ...newRequestType, name: e.target.value })
               }
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full p-3 border border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               required
             />
           </div>
@@ -251,17 +252,18 @@ const RequestTypes = () => {
             </label>
             <input
               type="number"
+              placeholder="Price"
               value={newRequestType.price}
               onChange={(e) =>
                 setNewRequestType({ ...newRequestType, price: e.target.value })
               }
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full border p-3 border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               required
             />
           </div>
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+            className="bg-blue-500 w-full text-white px-4 py-3 rounded hover:bg-blue-600 transition-colors"
           >
             Add Request Type
           </button>
