@@ -7,6 +7,7 @@ import React, { useState } from "react"
 import { IoPersonCircleSharp } from "react-icons/io5"
 import { MdKeyboardArrowDown } from "react-icons/md"
 import { useRouter } from "next/navigation" // Import useRouter for redirection
+import Statuses from "@/app/screens/Statuses"
 
 const Portal = () => {
   let adminName
@@ -27,7 +28,7 @@ const Portal = () => {
       case "request-types":
         return <RequestTypes />
       case "statuses":
-        return <RequestTypes />
+        return <Statuses />
       case "Logout":
         return (
           <div className="flex items-center justify-center h-full">
@@ -118,7 +119,7 @@ const Portal = () => {
                 activePage === "statuses" ? "font-bold" : ""
               }`}
               onClick={() => {
-                setActivePage("request-types")
+                setActivePage("statuses")
                 setIsMenuVisible(false) // Hide menu on click
               }}
             >
