@@ -4,6 +4,7 @@ const Requests = () => {
   const [requests, setRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 10;
 
@@ -24,13 +25,47 @@ const Requests = () => {
 
   useEffect(() => {
     const lowercasedQuery = searchQuery.toLowerCase();
-    const filteredData = requests.filter((request) =>
-      request.requestCode.toLowerCase().includes(lowercasedQuery) ||
-      request.student_id.toLowerCase().includes(lowercasedQuery)
-    );
+    const filteredData = requests.filter((request) => {
+      const matchesQuery =
+        request.requestCode.toLowerCase().includes(lowercasedQuery) ||
+        request.student_id.toLowerCase().includes(lowercasedQuery);
+
+      const requestDate = new Date(request.dateCreated);
+      const today = new Date();
+      let matchesDate = true;
+
+      switch (dateFilter) {
+        case 'today':
+          matchesDate =
+            requestDate.toDateString() === today.toDateString();
+          break;
+        case 'yesterday':
+          const yesterday = new Date(today);
+          yesterday.setDate(today.getDate() - 1);
+          matchesDate =
+            requestDate.toDateString() === yesterday.toDateString();
+          break;
+        case 'thisMonth':
+          matchesDate =
+            requestDate.getMonth() === today.getMonth() &&
+            requestDate.getFullYear() === today.getFullYear();
+          break;
+        case 'thisYear':
+          matchesDate = requestDate.getFullYear() === today.getFullYear();
+          break;
+        case 'lastYear':
+          matchesDate = requestDate.getFullYear() === today.getFullYear() - 1;
+          break;
+        default:
+          matchesDate = true;
+      }
+
+      return matchesQuery && matchesDate;
+    });
+
     setFilteredRequests(filteredData);
-    setCurrentPage(1); // Reset to first page when search query changes
-  }, [searchQuery, requests]);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [searchQuery, dateFilter, requests]);
 
   const handleDelete = (id) => {
     const requestOptions = {
@@ -60,13 +95,27 @@ const Requests = () => {
   return (
     <div className='min-h-screen'>
       <h2 className='font-bold text-lg'>Requests</h2>
-      <input
-        type='text'
-        placeholder='Search by Request Code or Student ID'
-        className='mt-4 mb-4 p-2 border w-full'
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
+      <div className='flex items-center mt-4 mb-4'>
+        <input
+          type='text'
+          placeholder='Search by Request Code or Student ID'
+          className='p-2 border w-full'
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <select
+          className='ml-4 p-2 border'
+          value={dateFilter}
+          onChange={(e) => setDateFilter(e.target.value)}
+        >
+          <option value=''>All Dates</option>
+          <option value='today'>Today</option>
+          <option value='yesterday'>Yesterday</option>
+          <option value='thisMonth'>This Month</option>
+          <option value='thisYear'>This Year</option>
+          <option value='lastYear'>Last Year</option>
+        </select>
+      </div>
       <div className='mt-4'>
         <table className='min-w-full bg-white'>
           <thead>
