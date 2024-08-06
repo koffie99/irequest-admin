@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSpring, animated } from '@react-spring/web';
 import { FaDownload, FaEye, FaTrash } from 'react-icons/fa';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const Requests = () => {
   const [requests, setRequests] = useState([]);
@@ -98,8 +100,26 @@ const Requests = () => {
   };
 
   const downloadReport = () => {
-    // Logic to download the report as PDF
-    console.log('Downloading report...');
+    const doc = new jsPDF();
+
+    doc.setFontSize(20);
+    doc.text('Requests Report', 14, 22);
+
+    const tableData = requests.map((request) => [
+      request.requestCode,
+      request.student_id,
+      request.status ? 'Completed' : 'Pending',
+      new Date(request.dateCreated).toLocaleString(),
+      new Date(request.dateUpdated).toLocaleString(),
+    ]);
+
+    autoTable(doc, {
+      head: [['Request Code', 'Student ID', 'Status', 'Date Created', 'Date Updated']],
+      body: tableData,
+      startY: 30,
+    });
+
+    doc.save('requests_report.pdf');
   };
 
   // Pagination logic
@@ -169,13 +189,13 @@ const Requests = () => {
                 <td className="py-3 px-6 text-center space-x-2">
                   <button
                     onClick={() => openSlider(request)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                    className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition-colors"
                   >
                     <FaEye />
                   </button>
                   <button
                     onClick={() => handleDelete(request._id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
+                    className="bg-red-500 text-white p-2 rounded-md hover:bg-red-600 transition-colors"
                   >
                     <FaTrash />
                   </button>
@@ -219,27 +239,26 @@ const Requests = () => {
             zIndex: 1000,
             borderLeft: '1px solid #e2e8f0',
             overflowY: 'auto',
-         
           }}
+        >
+          <button
+            onClick={closeSlider}
+            className="absolute top-4 right-4 bg-red-500 text-white p-2 rounded"
           >
-            <button
-              onClick={closeSlider}
-              className="absolute top-4 right-4 bg-red-500 text-white p-2 rounded"
-            >
-              Close
-            </button>
-            <h2 className="text-xl font-bold mb-4">Request Details</h2>
-            <p><strong>Request Code:</strong> {selectedRequest.requestCode}</p>
-            <p><strong>Student ID:</strong> {selectedRequest.student_id}</p>
-            <p><strong>Status:</strong> {selectedRequest.status ? 'Completed' : 'Pending'}</p>
-            <p><strong>Date Created:</strong> {new Date(selectedRequest.dateCreated).toLocaleString()}</p>
-            <p><strong>Date Updated:</strong> {new Date(selectedRequest.dateUpdated).toLocaleString()}</p>
-            {/* Add more details as needed */}
-          </animated.div>
-        )}
-      </div>
-    );
-  };
-  
-  export default Requests;
-  
+            Close
+          </button>
+          <h2 className="text-xl font-bold mb-4">Request Details</h2>
+          <div className="mb-4">
+            <p><strong className="font-semibold">Request Code:</strong> {selectedRequest.requestCode}</p>
+            <p><strong className="font-semibold">Student ID:</strong> {selectedRequest.student_id}</p>
+            <p><strong className="font-semibold">Status:</strong> {selectedRequest.status ? 'Completed' : 'Pending'}</p>
+            <p><strong className="font-semibold">Date Created:</strong> {new Date(selectedRequest.dateCreated).toLocaleString()}</p>
+            <p><strong className="font-semibold">Date Updated:</strong> {new Date(selectedRequest.dateUpdated).toLocaleString()}</p>
+          </div>
+        </animated.div>
+      )}
+    </div>
+  );
+};
+
+export default Requests;
