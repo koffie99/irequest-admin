@@ -35,6 +35,8 @@ export default function Home() {
           if (result.msg === "login successful") {
             setLoading(false)
             toast.success("Login Successful")
+            sessionStorage.setItem('adminName', result.registrar?.name)
+            sessionStorage.setItem('adminId', result.registrar?._id)
             location.href = '/portal'
             console.log(result)
           } else {
@@ -51,7 +53,7 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-[100vh] items-center justify-center w-full">
+    <main className="flex min-h-[100vh] items-center justify-center w-full bg-[#f9fafd]">
       <div className="flex-[0.5] bg-white h-[100vh] flex items-center justify-center flex-col">
         <Image width={100} height={100} alt="logo" src="/images/ilogo.png" />
         <h1 className="text-[2rem] font-bold text-[#320F6B]">iRequest Admin</h1>
