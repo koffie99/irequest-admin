@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSpring, animated } from '@react-spring/web';
+import { FaDownload, FaEye, FaTrash } from 'react-icons/fa';
 
 const Requests = () => {
   const [requests, setRequests] = useState([]);
@@ -6,6 +8,8 @@ const Requests = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [dateFilter, setDateFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [isSliderVisible, setIsSliderVisible] = useState(false);
   const recordsPerPage = 10;
 
   useEffect(() => {
@@ -36,18 +40,15 @@ const Requests = () => {
 
       switch (dateFilter) {
         case 'today':
-          matchesDate =
-            requestDate.toDateString() === today.toDateString();
+          matchesDate = requestDate.toDateString() === today.toDateString();
           break;
         case 'yesterday':
           const yesterday = new Date(today);
           yesterday.setDate(today.getDate() - 1);
-          matchesDate =
-            requestDate.toDateString() === yesterday.toDateString();
+          matchesDate = requestDate.toDateString() === yesterday.toDateString();
           break;
         case 'thisMonth':
-          matchesDate =
-            requestDate.getMonth() === today.getMonth() &&
+          matchesDate = requestDate.getMonth() === today.getMonth() &&
             requestDate.getFullYear() === today.getFullYear();
           break;
         case 'thisYear':
@@ -86,15 +87,44 @@ const Requests = () => {
       .catch((error) => console.error(error));
   };
 
+  const openSlider = (request) => {
+    setSelectedRequest(request);
+    setIsSliderVisible(true);
+  };
+
+  const closeSlider = () => {
+    setIsSliderVisible(false);
+    setSelectedRequest(null);
+  };
+
+  const downloadReport = () => {
+    // Logic to download the report as PDF
+    console.log('Downloading report...');
+  };
+
   // Pagination logic
   const indexOfLastRecord = currentPage * recordsPerPage;
   const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
   const currentRecords = filteredRequests.slice(indexOfFirstRecord, indexOfLastRecord);
   const totalPages = Math.ceil(filteredRequests.length / recordsPerPage);
 
+  // Slider animation
+  const slideIn = useSpring({
+    transform: isSliderVisible ? 'translateX(0)' : 'translateX(100%)',
+  });
+
   return (
     <div className="min-h-screen py-8 px-4 md:px-12">
-      <h2 className="font-bold text-2xl text-gray-800 mb-6 text-center">Requests</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="font-bold text-2xl text-gray-800">Requests</h2>
+        <button
+          onClick={downloadReport}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center"
+        >
+          <FaDownload className="mr-2" />
+          Download Report
+        </button>
+      </div>
       <div className="flex items-center justify-center mb-6 space-x-4">
         <input
           type="text"
@@ -136,12 +166,18 @@ const Requests = () => {
                 <td className="py-3 px-6">{request.status ? 'Completed' : 'Pending'}</td>
                 <td className="py-3 px-6">{new Date(request.dateCreated).toLocaleString()}</td>
                 <td className="py-3 px-6">{new Date(request.dateUpdated).toLocaleString()}</td>
-                <td className="py-3 px-6 text-center">
+                <td className="py-3 px-6 text-center space-x-2">
+                  <button
+                    onClick={() => openSlider(request)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+                  >
+                    <FaEye />
+                  </button>
                   <button
                     onClick={() => handleDelete(request._id)}
                     className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
                   >
-                    Delete
+                    <FaTrash />
                   </button>
                 </td>
               </tr>
@@ -166,8 +202,44 @@ const Requests = () => {
           Next
         </button>
       </div>
-    </div>
-  );
-};
 
-export default Requests;
+      {/* Slider for viewing request details */}
+      {selectedRequest && (
+        <animated.div
+          style={{
+            ...slideIn,
+            position: 'fixed',
+            top: 0,
+            right: 0,
+            width: '300px',
+            height: '100%',
+            backgroundColor: 'white',
+            boxShadow: '-2px 0 10px rgba(0, 0, 0, 0.1)',
+            padding: '20px',
+            zIndex: 1000,
+            borderLeft: '1px solid #e2e8f0',
+            overflowY: 'auto',
+         
+          }}
+          >
+            <button
+              onClick={closeSlider}
+              className="absolute top-4 right-4 bg-red-500 text-white p-2 rounded"
+            >
+              Close
+            </button>
+            <h2 className="text-xl font-bold mb-4">Request Details</h2>
+            <p><strong>Request Code:</strong> {selectedRequest.requestCode}</p>
+            <p><strong>Student ID:</strong> {selectedRequest.student_id}</p>
+            <p><strong>Status:</strong> {selectedRequest.status ? 'Completed' : 'Pending'}</p>
+            <p><strong>Date Created:</strong> {new Date(selectedRequest.dateCreated).toLocaleString()}</p>
+            <p><strong>Date Updated:</strong> {new Date(selectedRequest.dateUpdated).toLocaleString()}</p>
+            {/* Add more details as needed */}
+          </animated.div>
+        )}
+      </div>
+    );
+  };
+  
+  export default Requests;
+  
